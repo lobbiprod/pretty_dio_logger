@@ -143,7 +143,7 @@ class PrettyDioLogger extends Interceptor {
                 'DioError ║ Status: ${err.response?.statusCode} ${err.response?.statusMessage} ║ Time: $diff ms',
             text: uri.toString());
         if (err.response != null && err.response?.data != null) {
-          logPrint(utf8.encode('╔ ${err.type.toString()}'));
+          logPrint(safeUtf8String('╔ ${err.type.toString()}'));
           _printResponse(err.response!);
         }
         _printLine('╚');
@@ -191,8 +191,8 @@ class PrettyDioLogger extends Interceptor {
 
   void _printBoxed({String? header, String? text}) {
     logPrint('');
-    logPrint(utf8.encode('╔╣ $header'));
-    logPrint(utf8.encode('║  $text'));
+    logPrint(safeUtf8String('╔╣ $header'));
+    logPrint(safeUtf8String('║  $text'));
     _printLine('╚');
   }
 
@@ -201,13 +201,13 @@ class PrettyDioLogger extends Interceptor {
       if (response.data is Map) {
         _printPrettyMap(response.data as Map);
       } else if (response.data is Uint8List) {
-        logPrint(utf8.encode('║${_indent()}['));
+        logPrint(safeUtf8String('║${_indent()}['));
         _printUint8List(response.data as Uint8List);
-        logPrint(utf8.encode('║${_indent()}]'));
+        logPrint(safeUtf8String('║${_indent()}]'));
       } else if (response.data is List) {
-        logPrint(utf8.encode('║${_indent()}['));
+        logPrint(safeUtf8String('║${_indent()}['));
         _printList(response.data as List);
-        logPrint(utf8.encode('║${_indent()}]'));
+        logPrint(safeUtf8String('║${_indent()}]'));
       } else {
         _printBlock(response.data.toString());
       }
@@ -230,24 +230,24 @@ class PrettyDioLogger extends Interceptor {
   }
 
   void _printLine([String pre = '', String suf = '╝']) =>
-      logPrint(utf8.encode('$pre${'═' * maxWidth}$suf'));
+      logPrint(safeUtf8String('$pre${'═' * maxWidth}$suf'));
 
   void _printKV(String? key, Object? v) {
     final pre = '╟ $key: ';
     final msg = v.toString();
 
     if (pre.length + msg.length > maxWidth) {
-      logPrint(utf8.encode(pre));
+      logPrint(safeUtf8String(pre));
       _printBlock(msg);
     } else {
-      logPrint(utf8.encode('$pre$msg'));
+      logPrint(safeUtf8String('$pre$msg'));
     }
   }
 
   void _printBlock(String msg) {
     final lines = (msg.length / maxWidth).ceil();
     for (var i = 0; i < lines; ++i) {
-      logPrint(utf8.encode((i >= 0 ? '║ ' : '') +
+      logPrint(safeUtf8String((i >= 0 ? '║ ' : '') +
           msg.substring(i * maxWidth,
               math.min<int>(i * maxWidth + maxWidth, msg.length))));
     }
@@ -266,7 +266,7 @@ class PrettyDioLogger extends Interceptor {
     final initialIndent = _indent(tabs);
     tabs++;
 
-    if (isRoot || isListItem) logPrint(utf8.encode('║$initialIndent{'));
+    if (isRoot || isListItem) logPrint(safeUtf8String('║$initialIndent{'));
 
     for (var index = 0; index < data.length; index++) {
       final isLast = index == data.length - 1;
@@ -277,18 +277,18 @@ class PrettyDioLogger extends Interceptor {
       }
       if (value is Map) {
         if (compact && _canFlattenMap(value)) {
-          logPrint(utf8.encode('║${_indent(tabs)} $key: $value${!isLast ? ',' : ''}'));
+          logPrint(safeUtf8String('║${_indent(tabs)} $key: $value${!isLast ? ',' : ''}'));
         } else {
-          logPrint(utf8.encode('║${_indent(tabs)} $key: {'));
+          logPrint(safeUtf8String('║${_indent(tabs)} $key: {'));
           _printPrettyMap(value, initialTab: tabs);
         }
       } else if (value is List) {
         if (compact && _canFlattenList(value)) {
-          logPrint(utf8.encode('║${_indent(tabs)} $key: ${value.toString()}'));
+          logPrint(safeUtf8String('║${_indent(tabs)} $key: ${value.toString()}'));
         } else {
-          logPrint(utf8.encode('║${_indent(tabs)} $key: ['));
+          logPrint(safeUtf8String('║${_indent(tabs)} $key: ['));
           _printList(value, tabs: tabs);
-          logPrint(utf8.encode('║${_indent(tabs)} ]${isLast ? '' : ','}'));
+          logPrint(safeUtf8String('║${_indent(tabs)} ]${isLast ? '' : ','}'));
         }
       } else {
         final msg = value.toString().replaceAll('\n', '');
@@ -298,16 +298,16 @@ class PrettyDioLogger extends Interceptor {
           final lines = (msg.length / linWidth).ceil();
           for (var i = 0; i < lines; ++i) {
             final multilineKey = i == 0 ? "$key:" : "";
-            logPrint(utf8.encode(
-                '║${_indent(tabs)} $multilineKey ${msg.substring(i * linWidth, math.min<int>(i * linWidth + linWidth, msg.length))}'));
+            logPrint(
+                safeUtf8String(('║${_indent(tabs)} $multilineKey ${msg.substring(i * linWidth, math.min<int>(i * linWidth + linWidth, msg.length))}')));
           }
         } else {
-          logPrint(utf8.encode('║${_indent(tabs)} $key: $msg${!isLast ? ',' : ''}'));
+          logPrint(safeUtf8String('║${_indent(tabs)} $key: $msg${!isLast ? ',' : ''}'));
         }
       }
     }
 
-    logPrint(utf8.encode('║$initialIndent}${isListItem && !isLast ? ',' : ''}'));
+    logPrint(safeUtf8String('║$initialIndent}${isListItem && !isLast ? ',' : ''}'));
   }
 
   void _printList(List list, {int tabs = kInitialTab}) {
@@ -316,7 +316,7 @@ class PrettyDioLogger extends Interceptor {
       final isLast = i == list.length - 1;
       if (element is Map) {
         if (compact && _canFlattenMap(element)) {
-          logPrint(utf8.encode('║${_indent(tabs)}  $element${!isLast ? ',' : ''}'));
+          logPrint(safeUtf8String('║${_indent(tabs)}  $element${!isLast ? ',' : ''}'));
         } else {
           _printPrettyMap(
             element,
@@ -326,7 +326,7 @@ class PrettyDioLogger extends Interceptor {
           );
         }
       } else {
-        logPrint(utf8.encode('║${_indent(tabs + 2)} $element${isLast ? '' : ','}'));
+        logPrint(safeUtf8String('║${_indent(tabs + 2)} $element${isLast ? '' : ','}'));
       }
     }
   }
@@ -340,7 +340,7 @@ class PrettyDioLogger extends Interceptor {
       );
     }
     for (var element in chunks) {
-      logPrint(utf8.encode('║${_indent(tabs)} ${element.join(", ")}'));
+      logPrint(safeUtf8String('║${_indent(tabs)} ${element.join(", ")}'));
     }
   }
 
@@ -357,11 +357,22 @@ class PrettyDioLogger extends Interceptor {
 
   void _printMapAsTable(Map? map, {String? header}) {
     if (map == null || map.isEmpty) return;
-    logPrint(utf8.encode('╔ $header '));
+    logPrint('╔ $header ');
     for (final entry in map.entries) {
       _printKV(entry.key.toString(), entry.value);
     }
     _printLine('╚');
+  }
+}
+
+String safeUtf8String(String text) {
+  try {
+    // Essaie de décoder le texte comme UTF-8 et retourne le résultat
+    utf8.decode(utf8.encode(text));
+    return text;
+  } catch (e) {
+    // Si une erreur d'encodage survient, retourne une version sûre du texte
+    return '[Invalid UTF-8 string]';
   }
 }
 
