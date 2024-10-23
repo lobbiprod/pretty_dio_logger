@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -142,7 +143,7 @@ class PrettyDioLogger extends Interceptor {
                 'DioError ║ Status: ${err.response?.statusCode} ${err.response?.statusMessage} ║ Time: $diff ms',
             text: uri.toString());
         if (err.response != null && err.response?.data != null) {
-          logPrint('╔ ${err.type.toString()}');
+          logPrint(utf8.encode('╔ ${err.type.toString()}'));
           _printResponse(err.response!);
         }
         _printLine('╚');
@@ -190,8 +191,8 @@ class PrettyDioLogger extends Interceptor {
 
   void _printBoxed({String? header, String? text}) {
     logPrint('');
-    logPrint('╔╣ $header');
-    logPrint('║  $text');
+    logPrint(utf8.encode('╔╣ $header'));
+    logPrint(utf8.encode('║  $text'));
     _printLine('╚');
   }
 
@@ -200,13 +201,13 @@ class PrettyDioLogger extends Interceptor {
       if (response.data is Map) {
         _printPrettyMap(response.data as Map);
       } else if (response.data is Uint8List) {
-        logPrint('║${_indent()}[');
+        logPrint(utf8.encode('║${_indent()}['));
         _printUint8List(response.data as Uint8List);
-        logPrint('║${_indent()}]');
+        logPrint(utf8.encode('║${_indent()}]'));
       } else if (response.data is List) {
-        logPrint('║${_indent()}[');
+        logPrint(utf8.encode('║${_indent()}['));
         _printList(response.data as List);
-        logPrint('║${_indent()}]');
+        logPrint(utf8.encode('║${_indent()}]'));
       } else {
         _printBlock(response.data.toString());
       }
@@ -229,26 +230,26 @@ class PrettyDioLogger extends Interceptor {
   }
 
   void _printLine([String pre = '', String suf = '╝']) =>
-      logPrint('$pre${'═' * maxWidth}$suf');
+      logPrint(utf8.encode('$pre${'═' * maxWidth}$suf'));
 
   void _printKV(String? key, Object? v) {
     final pre = '╟ $key: ';
     final msg = v.toString();
 
     if (pre.length + msg.length > maxWidth) {
-      logPrint(pre);
+      logPrint(utf8.encode(pre));
       _printBlock(msg);
     } else {
-      logPrint('$pre$msg');
+      logPrint(utf8.encode('$pre$msg'));
     }
   }
 
   void _printBlock(String msg) {
     final lines = (msg.length / maxWidth).ceil();
     for (var i = 0; i < lines; ++i) {
-      logPrint((i >= 0 ? '║ ' : '') +
+      logPrint(utf8.encode((i >= 0 ? '║ ' : '') +
           msg.substring(i * maxWidth,
-              math.min<int>(i * maxWidth + maxWidth, msg.length)));
+              math.min<int>(i * maxWidth + maxWidth, msg.length))));
     }
   }
 
@@ -265,7 +266,7 @@ class PrettyDioLogger extends Interceptor {
     final initialIndent = _indent(tabs);
     tabs++;
 
-    if (isRoot || isListItem) logPrint('║$initialIndent{');
+    if (isRoot || isListItem) logPrint(utf8.encode('║$initialIndent{'));
 
     for (var index = 0; index < data.length; index++) {
       final isLast = index == data.length - 1;
@@ -276,18 +277,18 @@ class PrettyDioLogger extends Interceptor {
       }
       if (value is Map) {
         if (compact && _canFlattenMap(value)) {
-          logPrint('║${_indent(tabs)} $key: $value${!isLast ? ',' : ''}');
+          logPrint(utf8.encode('║${_indent(tabs)} $key: $value${!isLast ? ',' : ''}'));
         } else {
-          logPrint('║${_indent(tabs)} $key: {');
+          logPrint(utf8.encode('║${_indent(tabs)} $key: {'));
           _printPrettyMap(value, initialTab: tabs);
         }
       } else if (value is List) {
         if (compact && _canFlattenList(value)) {
-          logPrint('║${_indent(tabs)} $key: ${value.toString()}');
+          logPrint(utf8.encode('║${_indent(tabs)} $key: ${value.toString()}'));
         } else {
-          logPrint('║${_indent(tabs)} $key: [');
+          logPrint(utf8.encode('║${_indent(tabs)} $key: ['));
           _printList(value, tabs: tabs);
-          logPrint('║${_indent(tabs)} ]${isLast ? '' : ','}');
+          logPrint(utf8.encode('║${_indent(tabs)} ]${isLast ? '' : ','}'));
         }
       } else {
         final msg = value.toString().replaceAll('\n', '');
@@ -297,16 +298,16 @@ class PrettyDioLogger extends Interceptor {
           final lines = (msg.length / linWidth).ceil();
           for (var i = 0; i < lines; ++i) {
             final multilineKey = i == 0 ? "$key:" : "";
-            logPrint(
-                '║${_indent(tabs)} $multilineKey ${msg.substring(i * linWidth, math.min<int>(i * linWidth + linWidth, msg.length))}');
+            logPrint(utf8.encode(
+                '║${_indent(tabs)} $multilineKey ${msg.substring(i * linWidth, math.min<int>(i * linWidth + linWidth, msg.length))}'));
           }
         } else {
-          logPrint('║${_indent(tabs)} $key: $msg${!isLast ? ',' : ''}');
+          logPrint(utf8.encode('║${_indent(tabs)} $key: $msg${!isLast ? ',' : ''}'));
         }
       }
     }
 
-    logPrint('║$initialIndent}${isListItem && !isLast ? ',' : ''}');
+    logPrint(utf8.encode('║$initialIndent}${isListItem && !isLast ? ',' : ''}'));
   }
 
   void _printList(List list, {int tabs = kInitialTab}) {
@@ -315,7 +316,7 @@ class PrettyDioLogger extends Interceptor {
       final isLast = i == list.length - 1;
       if (element is Map) {
         if (compact && _canFlattenMap(element)) {
-          logPrint('║${_indent(tabs)}  $element${!isLast ? ',' : ''}');
+          logPrint(utf8.encode('║${_indent(tabs)}  $element${!isLast ? ',' : ''}'));
         } else {
           _printPrettyMap(
             element,
@@ -325,7 +326,7 @@ class PrettyDioLogger extends Interceptor {
           );
         }
       } else {
-        logPrint('║${_indent(tabs + 2)} $element${isLast ? '' : ','}');
+        logPrint(utf8.encode('║${_indent(tabs + 2)} $element${isLast ? '' : ','}'));
       }
     }
   }
@@ -339,7 +340,7 @@ class PrettyDioLogger extends Interceptor {
       );
     }
     for (var element in chunks) {
-      logPrint('║${_indent(tabs)} ${element.join(", ")}');
+      logPrint(utf8.encode('║${_indent(tabs)} ${element.join(", ")}'));
     }
   }
 
@@ -356,7 +357,7 @@ class PrettyDioLogger extends Interceptor {
 
   void _printMapAsTable(Map? map, {String? header}) {
     if (map == null || map.isEmpty) return;
-    logPrint('╔ $header ');
+    logPrint(utf8.encode('╔ $header '));
     for (final entry in map.entries) {
       _printKV(entry.key.toString(), entry.value);
     }
