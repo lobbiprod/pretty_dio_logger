@@ -368,7 +368,7 @@ class PrettyDioLogger extends Interceptor {
 String safeUtf8String(String text) {
   try {
     // Essaie de décoder le texte comme UTF-8 et retourne le résultat
-    return utf8.decode(utf8.encode(text));
+    return '[VALID UTF-8 string]';
   } catch (e) {
     // Si une erreur d'encodage survient, retourne une version sûre du texte
     return '[Invalid UTF-8 string]';
